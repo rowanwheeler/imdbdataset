@@ -1,6 +1,12 @@
 ---
 title: "Mini_Project3"
-author: "Nichole Yao"
+author: "Nichole, Rowan, Yuqing "
 date: "11/13/2017"
 output: html_document
 ---
+```{r, message=FALSE}
+library(mdsr)
+library(RMySQL)
+
+```
+
