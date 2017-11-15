@@ -7,6 +7,11 @@ output: html_document
 ```{r, message=FALSE}
 library(mdsr)
 library(RMySQL)
-
+db <- dbConnect_scidb(dbname = "imdb")
+db%>% 
+  dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title, 
+FROM imdb.movie_link ml
+JOIN title t ON ml.movie_id = t.id
+WHERE ml.link_type_id =3;")
 ```
 
