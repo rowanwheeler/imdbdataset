@@ -14,8 +14,12 @@ FROM movie_link ml
 JOIN title t ON ml.movie_id = t.id
 JOIN title t2 ON ml.linked_movie_id = t2.id
 JOIN movie_info mi On t.id = mi.movie_id
-WHERE ml.link_type_id =3
-AND ;")
+WHERE ml.link_type_id =2 
+AND mi.info_type_id = 8
+AND info = 'USA'
+AND t.kind_id = 1
+AND t2.kind_id = 1;")
+#using "mi.info_type_id = 8" then filter "info='USA'"is index, saving time of calculation
 big_data
 ```
 
@@ -23,10 +27,6 @@ big_data
 
 big_data %>%
   filter()
-
-
-```
-
 
 
 ```
