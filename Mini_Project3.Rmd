@@ -44,3 +44,14 @@ d4<- d3%>%
 d4
 ```
 
+```{r, message=FALSE}
+library(ggplot)
+library(dplyr)
+library(scales)
+ggplot(d4,aes(x = , y = ,fill = ind)) + 
+    geom_bar(position = "fill",stat = "identity") +
+    # or:
+    # geom_bar(position = position_fill(), stat = "identity") 
+    scale_y_continuous(labels = percent_format())
+```
+
