@@ -9,7 +9,7 @@ library(mdsr)
 library(RMySQL)
 db <- dbConnect_scidb(dbname = "imdb")
 big_data<- db%>% 
-  dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title, t.production_year AS original_year, t2.production_year AS sequels_year  
+  dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title, t.production_year AS original_year, t2.production_year AS sequels_year, sequels_year-original_year AS year_difference
 FROM movie_link ml
 JOIN title t ON ml.movie_id = t.id
 JOIN title t2 ON ml.linked_movie_id = t2.id
@@ -19,8 +19,8 @@ WHERE ml.link_type_id =3;")
 
 ```{r, message=FALSE}
 
-db%>% 
-  dbGetQuery("SELECT * FROM imdb.info_type;")
+big_data %>%
+  filter()
 
 
 ```
