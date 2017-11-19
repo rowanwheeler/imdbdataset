@@ -7,6 +7,7 @@ output: html_document
 ```{r, message=FALSE}
 library(mdsr)
 library(RMySQL)
+library(dplyr)
 db <- dbConnect_scidb(dbname = "imdb")
 big_data<- db%>% 
   dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title, t.production_year AS original_year, t2.production_year AS sequels_year, t2.production_year - t.production_year AS year_difference
@@ -24,7 +25,6 @@ AND t2.kind_id = 1;")
 ```
 
 ```{r, message=FALSE}
-library(dplyr)
 d1<- big_data %>%
   group_by(sequels_year)%>%
   summarize(total = n())
@@ -44,6 +44,7 @@ d4<- d3%>%
 d4
 ```
 
+<<<<<<< HEAD
 ```{r, message=FALSE}
 library(ggplot)
 library(dplyr)
@@ -53,5 +54,10 @@ ggplot(d4,aes(x = , y = ,fill = ind)) +
     # or:
     # geom_bar(position = position_fill(), stat = "identity") 
     scale_y_continuous(labels = percent_format())
+=======
+```{r,message=FALSE}
+# Bar graph (total)
+
+>>>>>>> e7b4223869ca47c928d1f4f0b0dfd42baba626e6
 ```
 
