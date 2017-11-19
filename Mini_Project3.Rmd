@@ -20,6 +20,7 @@ AND info = 'USA'
 AND t.kind_id = 1
 AND t2.kind_id = 1;")
 #using "mi.info_type_id = 8" then filter "info='USA'"is index, saving time of calculation
+<<<<<<< HEAD
 
 big_data1<-big_data %>%
   group_by(original_year) %>%
@@ -43,10 +44,31 @@ ggplot(datm,aes(x = sequels_year, y = ,fill = ind)) +
 ```
 
 ```{r, message=FALSE}
+=======
+big_data
+>>>>>>> e808808b69c81c4ae09339c65ff4bd62d35958bd
 
-big_data %>%
-  filter()
 
+```
 
+```{r, message=FALSE}
+library(dplyr)
+d1<- big_data %>%
+  group_by(sequels_year)%>%
+  summarize(total = n())
+d2 <- big_data %>%
+  group_by(original_year)%>%
+  summarize(total = n())
+d3 <- d1%>%
+  full_join(d2, by = c("sequels_year" = "original_year"))
+d1
+d2
+d3 #x: sequels y:original
+d4<- d3%>%
+  mutate(decade = 10 * floor(sequels_year / 10)) %>%
+  group_by(decade)%>%
+  summarize(sequels = sum(total.x),
+          original = sum(total.y))
+d4
 ```
 
