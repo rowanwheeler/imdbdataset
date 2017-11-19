@@ -8,13 +8,34 @@ output: html_document
 library(mdsr)
 library(RMySQL)
 db <- dbConnect_scidb(dbname = "imdb")
+<<<<<<< HEAD
 db%>% 
   dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title
 FROM movie_link ml
 JOIN title t ON ml.movie_id = t.id
 JOIN title t2 ON ml.linked_movie_id = t2.id
+=======
+big_data<- db%>% 
+  dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title, t.produciton_year AS original_year, t2.production_year AS sequels_year  
+FROM movie_link ml
+JOIN title t ON ml.movie_id = t.id
+JOIN title t2 ON ml.linked_movie_id = t2.id
+JOIN moive_info mi On t.id = mi.movie_id
+>>>>>>> f3c6700a4fc5b369b407a2978310d7ed3def78d9
 WHERE ml.link_type_id =3;")
 # remake of (3) means the movie is the remake of the related movie 
 # remade as (4) meamns the movie is that take characters from related movies and made them into new tv shows or movies 
+```
+
+```{r, message=FALSE}
+
+db%>% 
+  dbGetQuery("SELECT * FROM imdb.info_type;")
+
+
+```
+
+
+
 ```
 
