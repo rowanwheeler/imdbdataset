@@ -20,7 +20,26 @@ AND info = 'USA'
 AND t.kind_id = 1
 AND t2.kind_id = 1;")
 #using "mi.info_type_id = 8" then filter "info='USA'"is index, saving time of calculation
-big_data
+
+big_data1<-big_data %>%
+  group_by(original_year) %>%
+  summarize(total_original=n())
+
+big_data2<-big_data %>%
+  group_by(sequels_year) %>%
+  summarize(total_sequels=n())
+
+big_data3<-big_data1 %>%
+  full_join(big_data2, by=c("original_year"="sequels_year"))
+big_data3
+
+
+library(scales)
+ggplot(datm,aes(x = sequels_year, y = ,fill = ind)) + 
+    geom_bar(position = "fill",stat = "identity") +
+    # or:
+    # geom_bar(position = position_fill(), stat = "identity") 
+    scale_y_continuous(labels = percent_format())
 ```
 
 ```{r, message=FALSE}
