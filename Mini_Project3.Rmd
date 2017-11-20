@@ -43,21 +43,39 @@ d4<- d3%>%
           original = sum(total.y))
 d4
 ```
-
-<<<<<<< HEAD
-```{r, message=FALSE}
-library(ggplot)
-library(dplyr)
-library(scales)
-ggplot(d4,aes(x = , y = ,fill = ind)) + 
-    geom_bar(position = "fill",stat = "identity") +
-    # or:
-    # geom_bar(position = position_fill(), stat = "identity") 
-    scale_y_continuous(labels = percent_format())
-=======
-```{r,message=FALSE}
-# Bar graph (total)
-
->>>>>>> e7b4223869ca47c928d1f4f0b0dfd42baba626e6
 ```
 
+```{r, message=FALSE}
+d_percentage<- d4 %>%
+  mutate(total = sequels+original,
+    sequels_percentage = sequels*100/total, 
+        original_percentage = original*100/total) %>%
+  select(sequels_percentage, original_percentage, decade, total) %>% 
+  tidyr::gather(key = "type_of_movies", value = "percentage", -decade, -total)
+d_percentage
+
+```
+
+```{r, message = FALSE}
+library(ggplot2)
+library(ggthemes)
+library(plyr)
+library(scales)
+
+p1 <- ggplot() + 
+geom_bar(aes(y = floor(percentage), x = decade, fill = type_of_movies), data =  d_percentage, stat="identity") + 
+geom_text(data=d_percentage, aes(x = decade, y = floor(percentage),
+                                             label = paste0(floor(percentage),"%")), size=4)
+#create a stacked bar plots
+#P.S. the data of 1990 is missing 
+
+d_percentage <- ddply(d_percentage, .(decade),
+                     transform, pos = cumsum(percentage) - (0.5 * percentage))
+p3 <- ggplot() + geom_bar(aes(y = floor(percentage), x = decade, fill = type_of_movies), data = d_percentage, stat="identity") + 
+geom_text(data=d_percentage, aes(x = decade, y = pos, label = paste0(floor(percentage),"%")), size=4) + 
+theme(legend.position="bottom", legend.direction="horizontal",
+                   legend.title = element_blank()) + 
+                   scale_x_continuous(breaks=seq(1890,2010,10))
+p3
+#move the lable into the center of each bar
+```
