@@ -12,14 +12,17 @@ library(dplyr)
 library(tidyr)
 db <- dbConnect_scidb(dbname = "imdb")
 big_data<- db%>% 
-  dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title, t.production_year AS sequels_year, t2.production_year AS original_year, t.production_year - t2.production_year AS year_difference
+  dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title, t.production_year AS original_year, t2.production_year AS sequels_year, t2.production_year - t.production_year AS year_difference
 FROM movie_link ml
 JOIN title t ON ml.movie_id = t.id
 JOIN title t2 ON ml.linked_movie_id = t2.id
 JOIN movie_info mi On t.id = mi.movie_id
+JOIN movie_info mi2 ON t.id = mi2.movie_id
 WHERE ml.link_type_id =2 
 AND mi.info_type_id = 8
-AND info = 'USA'
+AND mi.info = 'USA'
+AND mi2.info_type_id = 1
+AND mi2.info > 60
 AND t.kind_id = 1
 AND t2.kind_id = 1;")
 #using "mi.info_type_id = 8" then filter "info='USA'" in index, saving time of calculation
@@ -64,7 +67,8 @@ d_percentage
 library(tidyverse)
 ggplot(d5, aes(factor(decade), amount, fill = movie_type)) + 
   geom_bar(stat="identity", position = "dodge",width=.55) + 
-  scale_fill_brewer(palette = "Set1")
+  scale_fill_brewer(palette = "Set1") +
+labs( x = "Decade", y= "Movies Released per Decade", title = "Total Number of Sequels and Originals Released by Decade")
 ```
 
 ```{r, message = FALSE}
@@ -77,8 +81,7 @@ p1 <- ggplot() +
 geom_bar(aes(y = floor(percentage), x = decade, fill = type_of_movies), data =  d_percentage, stat="identity") + 
 geom_text(data=d_percentage, aes(x = decade, y = floor(percentage),
                                              label = paste0(floor(percentage),"%")), size=4) +
-scale_fill_brewer(palette = "Set1") +
-labs( x = "Decade", y= "Movies Released per Decade", title = "Total Number of Sequels and Originals Released by Decade")
+
 ```
 
 ```{r, warning = FALSE}
@@ -92,7 +95,9 @@ geom_text(data=d_percentage, aes(x = decade, y = pos, label = paste0(floor(perce
 theme(legend.position="bottom", legend.direction="horizontal",
                    legend.title = element_blank()) + 
                    scale_x_continuous(breaks=seq(1890,2010,10)) +
-                   labs( x = "Decade", y="Percentage of Sequels vs. Originals", title = "Distribution of Sequels and Originals Released by Decade")
+                   labs( x = "Decade", y="Percentage of Sequels vs. Originals", title = "Distribution of Sequels and Originals Released by Decade") + 
+scale_fill_brewer(palette = "Set1") 
+
 p3
 #move the lable into the center of each bar
 ```
