@@ -4,13 +4,15 @@ author: "Nichole, Rowan, Yuqing "
 date: "11/13/2017"
 output: html_document
 ---
+
 ```{r, message=FALSE}
 library(mdsr)
 library(RMySQL)
 library(dplyr)
+library(tidyr)
 db <- dbConnect_scidb(dbname = "imdb")
 big_data<- db%>% 
-  dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title, t.production_year AS original_year, t2.production_year AS sequels_year, t2.production_year - t.production_year AS year_difference
+  dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title, t.production_year AS sequels_year, t2.production_year AS original_year, t.production_year - t2.production_year AS year_difference
 FROM movie_link ml
 JOIN title t ON ml.movie_id = t.id
 JOIN title t2 ON ml.linked_movie_id = t2.id
@@ -20,7 +22,7 @@ AND mi.info_type_id = 8
 AND info = 'USA'
 AND t.kind_id = 1
 AND t2.kind_id = 1;")
-#using "mi.info_type_id = 8" then filter "info='USA'"is index, saving time of calculation
+#using "mi.info_type_id = 8" then filter "info='USA'" in index, saving time of calculation
 
 ```
 
@@ -47,7 +49,7 @@ d5
 ```
 
 ```{r, message=FALSE}
-#deal with data for percentafe bar graph
+#deal with data for percentage bar graph
 d_percentage<- d4 %>%
   mutate(total = sequels+original,
     sequels_percentage = sequels*100/total, 
@@ -58,7 +60,7 @@ d_percentage
 ```
 
 ```{r,message=FALSE,warning=FALSE}
-# Bar graph (total)
+#Bar graph (total)
 library(tidyverse)
 ggplot(d5, aes(factor(decade), amount, fill = movie_type)) + 
   geom_bar(stat="identity", position = "dodge",width=.55) + 
@@ -74,7 +76,12 @@ library(scales)
 p1 <- ggplot() + 
 geom_bar(aes(y = floor(percentage), x = decade, fill = type_of_movies), data =  d_percentage, stat="identity") + 
 geom_text(data=d_percentage, aes(x = decade, y = floor(percentage),
-                                             label = paste0(floor(percentage),"%")), size=4)
+                                             label = paste0(floor(percentage),"%")), size=4) +
+scale_fill_brewer(palette = "Set1") +
+labs( x = "Decade", y= "Movies Released per Decade", title = "Total Number of Sequels and Originals Released by Decade")
+```
+
+```{r, warning = FALSE}
 #create a stacked bar plots
 #P.S. the data of 1990 is missing 
 
@@ -84,7 +91,8 @@ p3 <- ggplot() + geom_bar(aes(y = floor(percentage), x = decade, fill = type_of_
 geom_text(data=d_percentage, aes(x = decade, y = pos, label = paste0(floor(percentage),"%")), size=4) + 
 theme(legend.position="bottom", legend.direction="horizontal",
                    legend.title = element_blank()) + 
-                   scale_x_continuous(breaks=seq(1890,2010,10))
+                   scale_x_continuous(breaks=seq(1890,2010,10)) +
+                   labs( x = "Decade", y="Percentage of Sequels vs. Originals", title = "Distribution of Sequels and Originals Released by Decade")
 p3
 #move the lable into the center of each bar
 ```
