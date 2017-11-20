@@ -33,19 +33,21 @@ d2 <- big_data %>%
   summarize(total = n())
 d3 <- d1%>%
   full_join(d2, by = c("sequels_year" = "original_year"))
-d1
-d2
-d3 #x: sequels y:original
+#x: sequels y:original
 d4<- d3%>%
   mutate(decade = 10 * floor(sequels_year / 10)) %>%
   group_by(decade)%>%
   summarize(sequels = sum(total.x),
           original = sum(total.y))
 d4
+d5 <-d4%>%
+  gather(key="movie_type",value = "amount",-decade)
+d5
 ```
 ```
 
 ```{r, message=FALSE}
+#deal with data for percentafe bar graph
 d_percentage<- d4 %>%
   mutate(total = sequels+original,
     sequels_percentage = sequels*100/total, 
@@ -53,7 +55,14 @@ d_percentage<- d4 %>%
   select(sequels_percentage, original_percentage, decade, total) %>% 
   tidyr::gather(key = "type_of_movies", value = "percentage", -decade, -total)
 d_percentage
+```
 
+```{r,message=FALSE,warning=FALSE}
+# Bar graph (total)
+library(tidyverse)
+ggplot(d5, aes(factor(decade), amount, fill = movie_type)) + 
+  geom_bar(stat="identity", position = "dodge",width=.55) + 
+  scale_fill_brewer(palette = "Set1")
 ```
 
 ```{r, message = FALSE}
