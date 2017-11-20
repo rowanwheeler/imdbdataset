@@ -42,10 +42,15 @@ d4<- d3%>%
   summarize(sequels = sum(total.x),
           original = sum(total.y))
 d4
+d5<-d4%>%
+  gather(key="movie_type",value = "amount",-decade)
 ```
 
-```{r,message=FALSE}
+```{r,message=FALSE,warning=FALSE}
 # Bar graph (total)
-
+library(tidyverse)
+ggplot(d5, aes(factor(decade), amount, fill = movie_type)) + 
+  geom_bar(stat="identity", position = "dodge",width=.55) + 
+  scale_fill_brewer(palette = "Set1")
 ```
 
