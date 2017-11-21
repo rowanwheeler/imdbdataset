@@ -4,7 +4,17 @@ author: "Nichole, Rowan, Yuqing "
 date: "11/13/2017"
 output: html_document
 ---
-In this miniproject, we chose to answer Professor Keller's query about the prevalence of original movies in Hollywood in comparison to sequels: reboots, remakes, and adaptations. We chose to group these together, since they all involve the continuation of story, whether it be through the same plot, characters, or world. Through analyzing the IMDb dataset, we hoped to answer the questions of if more sequels were being made today than in the past, if those sequels are made more rapidly today than in the past, and if the rapidity of a sequel's release was related to its genre. 
+In this miniproject, we chose to answer Professor Keller's query about the prevalence of original movies in Hollywood in comparison to sequels: reboots, remakes, and adaptations. We chose to group these together, since they all involve the continuation of story, whether it be through the same plot, characters, or world. Through analyzing the IMDb dataset, we hoped to answer the questions:
+Are more sequels being made today than in the past?
+How has the ratio of original movies to sequels changed over time?
+Is the rapidity of a sequel's release related to its genre?
+How rapidly are sequels made to Comedy, Horror, and Romance films?
+
+Specifically, we analyzed how the anti-Communist crackdown of the 1950s and the economic crisis of 1981 may have affected the type of films released.
+
+First, we filtered by "mi.info_type_id = 8" and "info='USA'" in the index, saving calculation time. Then, we joined the movie_info table three times to determine movies' genre, production location, and length. Production location and length were limited to made in the U.S. and over 60 minutes in legnth; in doing so we narrowed our search to full Hollywood movies. Fascinatingly, without doing so our data would have looked substantially different because of the proliferation of short films made from 1910-1925, often starring the same characters. These films dramatically shifted the data, but were not relevant to Professor Keller's question about full-length Hollywood movies. We then used "ml.link_type_id = 2" to make sure all the movies shown were follow up movies of their "related movies", which was the easiest way to tell which were sequels and which were originals. 
+
+
 ```{r, message=FALSE}
 library(mdsr)
 library(RMySQL)
@@ -29,11 +39,7 @@ AND t.kind_id = 1
 AND t2.kind_id = 1;")
 
   
-#if linked_movie_id seem repetitive, it is because the the movie belongs to different genres
 
-#using "mi.info_type_id = 8" then filter "info='USA'"is index, saving time of calculation
-#we also joined movie_info table 3 times, in order to figure out genre(info IN ('Comedy', 'Horror', 'Romance'), filter short movies which lenth is under 60 min, and limit movies to those which are made in U.S.; in such a way we can make sure those movies we have are Hollywood movies
-#besides, using  ml.link_type_id =2 we made sure all movies shows are follow up movies of their "related movies", which is the easiest way of tell which one is sequels and which is original movies. 
 
 d1<- big_data %>%
   group_by(sequels_year) %>%
@@ -43,7 +49,9 @@ d2 <- big_data %>%
   summarize(total = n())
 d3 <- d1%>%
   full_join(d2, by = c("sequels_year" = "original_year"))
-#x: sequels y:original
+
+#x:sequels, y:original
+
 d4<- d3%>%
   mutate(decade = 10 * floor(sequels_year / 10)) %>%
   group_by(decade)%>%
@@ -54,10 +62,12 @@ d5 <-d4%>%
   gather(key="movie_type",value = "amount",-decade)
 d5
 ```
-```
 
+**How many movies were made in Hollywood per decade? Are more sequels being made today than in the past?**
+
+We graphed the amount of movies produced & released each decade, comparing the number of original films to the number of sequels produced. Some notable conclusions that can be drawn: Sequels became much more popular in relation to originals during the 1950s, reflecting the House Un-American Activities Committee investigations into Hollywood which resulted in the blacklisting of many actors, directors, and producers. This dramatically reduced the amount of creative, original material produced. The dramatic reduction in movies after the 1940s and 50s also reflects a greater amount of films being made internationally or co-internationally, not solely in Hollywood itself. Finally, the lack of original films shown from 2010-2020 relfects the fact that, while sequels are often announced siginificaly ahead of their release, there is very little knowledge available about original movies being released in the future. 
 ```{r, message=FALSE}
-#deal with data for percentafe bar graph
+#deal with data for percentage bar graph
 d_percentage<- d4 %>%
   mutate(total = sequels+original,
     sequels_percentage = sequels*100/total, 
@@ -79,12 +89,15 @@ library(ggplot2)
 library(ggthemes)
 library(plyr)
 library(scales)
-library(tidyverse)
 p1 <- ggplot() + 
 geom_bar(aes(y = floor(percentage), x = decade, fill = type_of_movies), data =  d_percentage, stat="identity") + 
 geom_text(data=d_percentage, aes(x = decade, y = floor(percentage), label = paste0(floor(percentage),"%")), size=4) 
 
 ```
+**How has the ratio of original movies to sequels changed over time?**
+
+We graphed the percentage of original versus sequel movies per decade. In this, having NA data was an issue, hence the missing columsn for several columns. Again, this data clearly demonstrates the increase in sequels during the 1950s, going from 50% to 69% of all movies.
+
 
 ```{r, warning = FALSE}
 
@@ -101,9 +114,11 @@ theme(legend.position="bottom", legend.direction="horizontal",
 p3
 #move the lable into the center of each bar
 ```
+**How rapidly are sequels made to Comedy, Horror, and Romance films?**
 
-```{r, message = FALSE}
-library(ggplot2)
+In 1981, a serious economic crisis combined with tax breaks for studios meant that it was more profitable to invest in sequels, which had built-in success guaranteed, instead of less certain original films. This led to a dramatic decrease in the amount of years between the release of an original movie and its sequel. This shift is reflected by Comedy, Horror, and Romance movies. 
+```
+```{r, message = FALSE, warning = FALSE}
 require(scales)
 
 y1 <- big_data %>%
@@ -116,5 +131,4 @@ geom_smooth()+
 annotate("point", x = 1981, y = 10, color = "red", size = 2) +
 
 facet_wrap(~genre)
-# In 1981, a serious economic crisis there was a serious econ crisis. That was when comedy and horror movies went down but when romance movies getting more popular. It is possible that when getting through an econ crisis, people may face unemployment and hard to experience romantic love, thus would more likely to watch romantic movies as a comfort. 
-```
+
