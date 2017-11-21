@@ -121,14 +121,9 @@ In 1981, a serious economic crisis combined with tax breaks for studios meant th
 ```{r, message = FALSE, warning = FALSE}
 require(scales)
 
-y1 <- big_data %>%
-    group_by(original_year) %>%
-   filter(original_year == 1980)
-y1
-
 ggplot(big_data, aes(x=original_year, y = year_difference))+
 geom_smooth()+
 annotate("point", x = 1981, y = 10, color = "red", size = 2) +
-
+geom_text(x=1981, y=14, label="Serious Econ Crisis", size = 3)+
 facet_wrap(~genre)
 
