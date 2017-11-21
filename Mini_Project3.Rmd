@@ -10,23 +10,32 @@ library(RMySQL)
 library(dplyr)
 db <- dbConnect_scidb(dbname = "imdb")
 big_data<- db%>% 
-  dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title, t.production_year AS original_year, t2.production_year AS sequels_year, t2.production_year - t.production_year AS year_difference
+  dbGetQuery("SELECT ml.movie_id, ml.linked_movie_id, ml.link_type_id, t.title AS movie_title, t2.title AS linked_movie_title, t.production_year AS original_year, t2.production_year AS sequels_year, t2.production_year - t.production_year AS year_difference, mi2.info AS genre
 FROM movie_link ml
 JOIN title t ON ml.movie_id = t.id
 JOIN title t2 ON ml.linked_movie_id = t2.id
 JOIN movie_info mi On t.id = mi.movie_id
+JOIN movie_info mi2 On t.id = mi2.movie_id
+JOIN movie_info mi3 On t.id = mi3.movie_id
 WHERE ml.link_type_id =2 
 AND mi.info_type_id = 8
-AND info = 'USA'
+AND mi.info = 'USA'
+AND mi2.info_type_id = 3
+AND mi2.info IN ('Comedy', 'Horror', 'Romance')
+AND mi3.info_type_id = 1
+AND mi3.info > 60
 AND t.kind_id = 1
 AND t2.kind_id = 1;")
+big_data%>%
+  distinct(big_data)
+#if linked_movie_id seem repetitive, it is because the the movie belongs to different genres
+
 #using "mi.info_type_id = 8" then filter "info='USA'"is index, saving time of calculation
+#we also joined movie_info table 3 times, in order to figure out genre(info IN ('Comedy', 'Horror', 'Romance'), filter short movies which lenth is under 60 min, and limit movies to those which are made in U.S.; in such a way we can make sure those movies we have are Hollywood movies
+#besides, using  ml.link_type_id =2 we made sure all movies shows are follow up movies of their "related movies", which is the easiest way of tell which one is sequels and which is original movies. 
 
-```
-
-```{r, message=FALSE}
 d1<- big_data %>%
-  group_by(sequels_year)%>%
+  group_by(sequels_year) %>%
   summarize(total = n())
 d2 <- big_data %>%
   group_by(original_year)%>%
@@ -61,8 +70,7 @@ d_percentage
 # Bar graph (total)
 library(tidyverse)
 ggplot(d5, aes(factor(decade), amount, fill = movie_type)) + 
-  geom_bar(stat="identity", position = "dodge",width=.55) + 
-  scale_fill_brewer(palette = "Set1")
+  geom_bar(stat="identity", position = "dodge",width=.55) 
 ```
 
 ```{r, message = FALSE}
@@ -70,7 +78,7 @@ library(ggplot2)
 library(ggthemes)
 library(plyr)
 library(scales)
-
+library(tidyverse)
 p1 <- ggplot() + 
 geom_bar(aes(y = floor(percentage), x = decade, fill = type_of_movies), data =  d_percentage, stat="identity") + 
 geom_text(data=d_percentage, aes(x = decade, y = floor(percentage),
@@ -87,4 +95,19 @@ theme(legend.position="bottom", legend.direction="horizontal",
                    scale_x_continuous(breaks=seq(1890,2010,10))
 p3
 #move the lable into the center of each bar
+```
+
+```{r, message = FALSE}
+library(ggplot2)
+require(scales)
+
+y1 <- big_data %>%
+    group_by(original_year) %>%
+   filter(original_year == 1980)
+y1
+
+ggplot(big_data, aes(x=original_year, y = year_difference))+
+geom_smooth()+
+facet_wrap(~genre)
+# In 1980 there was a serious econ crisis. That was when comedy and horror movies went down but when romance movies getting more popular. It is possible that when getting through an econ crisis, people may face unemployment and hard to experience romantic love, thus would more likely to watch romantic movies as a comfort. 
 ```
