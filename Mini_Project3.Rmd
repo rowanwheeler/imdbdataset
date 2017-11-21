@@ -25,6 +25,7 @@ AND mi2.info_type_id = 1
 AND mi2.info > 60
 AND t.kind_id = 1
 AND t2.kind_id = 1;")
+big_data
 #using "mi.info_type_id = 8" then filter "info='USA'" in index, saving time of calculation
 
 ```
