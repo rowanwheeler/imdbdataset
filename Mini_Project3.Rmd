@@ -80,7 +80,7 @@ library(scales)
 p1 <- ggplot() + 
 geom_bar(aes(y = floor(percentage), x = decade, fill = type_of_movies), data =  d_percentage, stat="identity") + 
 geom_text(data=d_percentage, aes(x = decade, y = floor(percentage),
-                                             label = paste0(floor(percentage),"%")), size=4) +
+                                             label = paste0(floor(percentage),"%")), size=4) 
 
 ```
 
